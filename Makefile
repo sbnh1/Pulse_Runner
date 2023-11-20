@@ -1,17 +1,17 @@
 CC = gcc
-CFLAGS = -Wall -W
-LDFLAGS = 
-SRC = main.c
+CFLAGS = -W -Wall -ansi -std=c99 -g
+LIBS = -L./SDL2_tff/.libs
+LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf	-lSDL2_image
+INCLUDES = -I./SDL2_tff
+EXEC = main
+SRC = main.c fonctions_SDL.c
 OBJ = $(SRC:.c=.o)
-EXE = main
-
-all: $(SRC) $(EXE)
-
-$(EXE): $(OBJ)
-	$(CC) $(OBJ) -o $@ $(LDFLAGS)
-
-.c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
-
+all: $(EXEC)
+main: $(OBJ)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LIBS) $(LDFLAGS)
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $<
 clean:
-	rm -f $(OBJ) $(EXE)
+	rm -rf *.o *~
+mrproper: clean
+	rm -rf $(EXEC)
