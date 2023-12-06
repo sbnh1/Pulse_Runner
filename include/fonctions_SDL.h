@@ -1,6 +1,7 @@
 #ifndef FONCTIONS_SDL_H
 #define FONCTIONS_SDL_H
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 SDL_Texture* chargerTexture(const char* nomfichier, SDL_Renderer* renderer);
 

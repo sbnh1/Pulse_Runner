@@ -1,18 +1,23 @@
 CC = gcc
 CFLAGS = -W -Wall -ansi -std=c99 -g
 LIBS = -L./SDL2_tff/.libs
-LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf	-lSDL2_image -lSDL2_mixer
-INCLUDES = -I./SDL2_tff
+LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf -lSDL2_image -lSDL2_mixer
+INCLUDES = -I./SDL2_tff -I./include
 EXEC = main
-SRC = main.c fonctions_SDL.c
+SRC_DIR = src
+SRC = $(SRC_DIR)/main.c $(SRC_DIR)/fonctions_SDL.c
 OBJ = $(SRC:.c=.o)
+
 all: $(EXEC)
-main: $(OBJ)
+
+$(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LIBS) $(LDFLAGS)
-%.o: %.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ -c $<
+
 clean:
-	rm -rf *.o *~
+	rm -rf $(SRC_DIR)/*.o *~
+
 mrproper: clean
 	rm -rf $(EXEC)
-
