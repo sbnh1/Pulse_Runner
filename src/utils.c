@@ -14,7 +14,7 @@ int checkCollision(SDL_Rect rect1, Block * zone) {
     return 0;
 }
 
-void  getMap(char** map, char* fileName){
+void getMap(char** map, char* fileName){
     
     FILE* file = fopen(fileName, "r");
 

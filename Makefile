@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS = -W -Wall -ansi -std=c99 -g
+CFLAGS = -ansi -std=c99 -g
 LIBS = -L./SDL2_tff/.libs
 LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 INCLUDES = -I./SDL2_tff -I./include
 EXEC = main
 SRC_DIR = src
-SRC = $(SRC_DIR)/main.c $(SRC_DIR)/fonctions_SDL.c
+SRC = $(SRC_DIR)/main.c $(SRC_DIR)/fonctions_SDL.c $(SRC_DIR)/utils.c
 OBJ = $(SRC:.c=.o)
 
 all: $(EXEC)

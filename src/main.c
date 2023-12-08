@@ -14,12 +14,88 @@
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 600
 
+#define TEST(i) printf("%d\n", i);
 
-/*int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurface, SDL_Texture*, SDL_Event event, char** map) {
-  return 0;
-}*/
+int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurface, SDL_Texture* imageTexture, SDL_Event event, char** map) {
 
-int main(void) {
+    int targetFPS = 100;
+    int targetFrameTime = 1000 / targetFPS;
+
+    int elapsedTime;
+    Uint32 lastTick = SDL_GetTicks();
+    Uint32 currentTick = SDL_GetTicks();
+
+    Block** blockMap = malloc(sizeof(Block*) * 11);
+
+    for (int i = 0; i < 11; i++) {
+        blockMap[i] = malloc(sizeof(Block) * 1000);
+    }
+
+    SDL_Rect blockRect;
+
+    for (int i = 0; i < 11; i++) {
+        for (int j = 0; j < 1000; j++) {
+            blockMap[i][j].type = '0';
+            switch (map[i][j]) {
+                case '1':
+                    blockRect.x = j * 50;
+                    blockRect.y = i * 50;
+                    blockRect.w = 50;
+                    blockRect.h = 50;
+                    blockMap[i][j].rect = blockRect;
+                    blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("block.png"));
+                    blockMap[i][j].type = '1';
+                    break;
+            }
+        }
+    }
+    
+    while (1) {
+        TEST(1)
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT)
+                goto end;
+        }
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        for (int i = 0; i < 11; i++) {
+            for (int j = 0; j <  1000; j++) {
+                switch (blockMap[i][j].type) {
+                    case '1':
+                        SDL_RenderCopy(renderer, blockMap[i][j].sprite_image, NULL, &blockMap[i][j].rect);
+                        break;
+                }
+            }
+        }
+
+        SDL_RenderPresent(renderer);
+
+        currentTick = SDL_GetTicks();
+        elapsedTime = SDL_GetTicks() - lastTick;
+
+        if (elapsedTime < targetFrameTime) {
+            SDL_Delay(targetFrameTime - elapsedTime);
+        }
+        lastTick = currentTick;
+    }
+
+end:
+
+    for (int i = 0; i < 11; i++)
+        free(blockMap[i]);
+
+    free(blockMap);
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 0;
+}
+
+int main(int argc, char** argv) {
 
     SDL_Event evenements; // Événements liés à la fenêtre
     bool terminer = false;
@@ -113,102 +189,101 @@ int main(void) {
     bool enMenu = true;
     bool enShop = false;
 
+//    while (!terminer) {
+//         SDL_RenderClear(renderer);
 
+//         if (enMenu && !enShop) {
+//             SDL_RenderCopy(renderer, menuTexture, NULL, NULL);
+//             SDL_RenderPresent(renderer);
 
-   while (!terminer) {
-        SDL_RenderClear(renderer);
+//             while (SDL_PollEvent(&evenements)) {
+//                 switch (evenements.type) {
+//                     case SDL_QUIT:
+//                         terminer = true;
+//                         break;
+//                     case SDL_KEYDOWN:
+//                         if (evenements.key.keysym.sym == SDLK_s) {
+//                             enMenu = false;
+//                             enShop = false;
+//                         } else if (evenements.key.keysym.sym == SDLK_q || evenements.key.keysym.sym == SDLK_ESCAPE) {
+//                             terminer = true;
+//                         }
+//                         break;
+//                         case SDL_MOUSEBUTTONDOWN:
+//                             int mouseX = 0;
+//                             int mouseY = 0;
+//                             SDL_GetMouseState(&mouseX, &mouseY);
+//                             if (mouseX >= 0 && mouseX <= 100 && mouseY >= 0 && mouseY <= 100) {// pour aller dans le shop
+//                                 if(evenements.button.button ==  SDL_BUTTON_LEFT){
+//                                     enMenu = false;
+//                                     enShop = true;                                    
+//                                 }
+//                             }
+//                             break;
+//                 }
+//             }
+//         } else if (!enMenu && enShop){
+//             SDL_RenderCopy(renderer,menuShopTexture, NULL, NULL);
+//             SDL_RenderPresent(renderer);
 
-        if (enMenu && !enShop) {
-            SDL_RenderCopy(renderer, menuTexture, NULL, NULL);
-            SDL_RenderPresent(renderer);
+//             while(SDL_PollEvent(&evenements)){
+//                 switch(evenements.type){
+//                     case SDL_QUIT:
+//                         terminer = true;
+//                         break;
+//                     case SDL_KEYDOWN:
+//                         if(evenements.key.keysym.sym == SDLK_p){ //pour aller dans le jeu directement
+//                             enShop = false;
+//                             enMenu = false;
+//                         }
+//                     break;
+//                     case SDL_MOUSEBUTTONDOWN:
+//                         int mouseX= 0;
+//                         int mouseY = 0;
+//                         SDL_GetMouseState(&mouseX, &mouseY);
+//                         if (mouseX >= 0 && mouseX <= 100 && mouseY >= 0 && mouseY <= 100) {// pour aller dans le shop
+//                             if(evenements.button.button ==  SDL_BUTTON_LEFT){
+//                                 enMenu = true;
+//                                 enShop = false;                                    
+//                             }
+//                         }
+//                     break;
+//                 }
+//             }
+//         } else if (!enMenu && !enMenu){ //la ou on va choisir les niveaux
+//             SDL_RenderCopy(renderer, fond, NULL, NULL);
+//             SDL_RenderCopy(renderer, imageTexture, NULL, NULL);
 
-            while (SDL_PollEvent(&evenements)) {
-                switch (evenements.type) {
-                    case SDL_QUIT:
-                        terminer = true;
-                        break;
-                    case SDL_KEYDOWN:
-                        if (evenements.key.keysym.sym == SDLK_s) {
-                            enMenu = false;
-                            enShop = false;
-                        } else if (evenements.key.keysym.sym == SDLK_q || evenements.key.keysym.sym == SDLK_ESCAPE) {
-                            terminer = true;
-                        }
-                        break;
-                        case SDL_MOUSEBUTTONDOWN:
-                            int mouseX = 0;
-                            int mouseY = 0;
-                            SDL_GetMouseState(&mouseX, &mouseY);
-                            if (mouseX >= 0 && mouseX <= 100 && mouseY >= 0 && mouseY <= 100) {// pour aller dans le shop
-                                if(evenements.button.button ==  SDL_BUTTON_LEFT){
-                                    enMenu = false;
-                                    enShop = true;                                    
-                                }
-                            }
-                            break;
-                }
-            }
-        } else if (!enMenu && enShop){
-            SDL_RenderCopy(renderer,menuShopTexture, NULL, NULL);
-            SDL_RenderPresent(renderer);
+//             while (SDL_PollEvent(&evenements)) {
+//                 switch(evenements.type){
+//                     case SDL_QUIT:
+//                         terminer = true;
+//                         break;
+//                     case SDL_KEYDOWN:
+//                         if (evenements.key.keysym.sym == SDLK_q) {
+//                             terminer = true;
+//                         }
+//                         break;
+//                 }
+//             }
+//         }
 
-            while(SDL_PollEvent(&evenements)){
-                switch(evenements.type){
-                    case SDL_QUIT:
-                        terminer = true;
-                        break;
-                    case SDL_KEYDOWN:
-                        if(evenements.key.keysym.sym == SDLK_p){ //pour aller dans le jeu directement
-                            enShop = false;
-                            enMenu = false;
-                        }
-                    break;
-                    case SDL_MOUSEBUTTONDOWN:
-                        int mouseX= 0;
-                        int mouseY = 0;
-                        SDL_GetMouseState(&mouseX, &mouseY);
-                        if (mouseX >= 0 && mouseX <= 100 && mouseY >= 0 && mouseY <= 100) {// pour aller dans le shop
-                            if(evenements.button.button ==  SDL_BUTTON_LEFT){
-                                enMenu = true;
-                                enShop = false;                                    
-                            }
-                        }
-                    break;
-                }
-            }
-        } else if (!enMenu && !enMenu){ //la ou on va choisir les niveaux
-            SDL_RenderCopy(renderer, fond, NULL, NULL);
-            SDL_RenderCopy(renderer, imageTexture, NULL, NULL);
+//         SDL_RenderPresent(renderer);
+//     }
 
-            while (SDL_PollEvent(&evenements)) {
-                switch(evenements.type){
-                    case SDL_QUIT:
-                        terminer = true;
-                        break;
-                    case SDL_KEYDOWN:
-                        if (evenements.key.keysym.sym == SDLK_q) {
-                            terminer = true;
-                        }
-                        break;
-                }
-            }
-        }
-
-        SDL_RenderPresent(renderer);
-    }
     char** map = malloc(sizeof(char*) * 11);
     
     for(int i = 0; i < 11; i++)
         map[i] = malloc(sizeof(char) * 1000);
 
-    //getMap(map, argv[1]);
+    getMap(map, argv[1]);
 
 
     SDL_FreeSurface(imageSurface);
 
-    //SDL_Event event;
+    SDL_Event event;
 
-   // gameLoop(window, renderer, imageSurface, imageTexture, event, map);
+   gameLoop(window, renderer, imageSurface, imageTexture, event, map);
 
     for (int i = 0; i < 11; i++)
         free(map[i]);
@@ -225,6 +300,6 @@ int main(void) {
 
     SDL_Quit();
     IMG_Quit();
-
+    printf("1\n");
     return 0;
 }
