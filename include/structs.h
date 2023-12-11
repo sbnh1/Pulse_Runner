@@ -15,4 +15,9 @@ typedef struct Block{
     SDL_Texture* sprite_image;
 } Block;
 
+typedef struct {
+    SDL_Rect rect;
+    SDL_Texture* texture;
+} Button;
+
 #endif 

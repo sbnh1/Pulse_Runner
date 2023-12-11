@@ -3,6 +3,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include "fonctions_SDL.h"
+#include "structs.h"
 
 // Fonction pour charger une image et créer une texture SDL_Texture*
 SDL_Texture* chargerTexture(const char* nomfichier, SDL_Renderer* renderer) {
@@ -83,3 +84,12 @@ SDL_Texture* charger_texte(const char* message, SDL_Renderer* renderer, TTF_Font
     return imagetexte;
 }
 
+Button createButton(SDL_Renderer* renderer, const char* imagePath, int x, int y, int w, int h) {
+    Button button;
+    button.rect.x = x;
+    button.rect.y = y;
+    button.rect.w = w;
+    button.rect.h = h;
+    button.texture = SDL_CreateTextureFromSurface(renderer, IMG_Load(imagePath));
+    return button;
+}    
