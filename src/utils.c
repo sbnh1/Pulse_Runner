@@ -8,26 +8,27 @@
 
 int checkCollision(SDL_Rect rect1, Block * zone) {
     for (int i = 0; i < 4; i++){
-        if(SDL_HasIntersection(&rect1, &zone[i].rect))
-        return 1;
+        if(SDL_HasIntersection(&rect1, &zone[i].hitBox)) 
+            return zone[i].type;
     }
-    return 0;
+    return -1;
 }
 
-void getMap(char** map, char* fileName){
+void  getMap(char** map, char* fileName){
     
     FILE* file = fopen(fileName, "r");
 
     char line[1000];
 
-    for(int i = 0; fgets(line, sizeof(line), file) != NULL; i++)
-        if(strlen(line) > 2)
+    for(int i = 0; fgets(line, sizeof(line), file) != NULL; i++){
+        map[i] = malloc(sizeof(char) * (strlen(line)));
+        if(strlen(line) > 2){
             for(int j = 0; j < strlen(line); j++){
-                if(line[j] == '0' || line[j] == '1')
+                if(line[j] == '0' || line[j] == '1' || line[j] == '2' || line[j] == '3')
                     map[i][j] = line[j];
             }
-
-    
+        }    
+    }    
     fclose(file);
 }
 
@@ -52,3 +53,11 @@ SDL_Rect* relativPos(SDL_Rect* camera, SDL_Rect* player) {
     return res;
 }
 
+void renderBackground(SDL_Renderer *renderer, SDL_Texture *backgroundTexture, int scrollOffset, int SCREEN_WIDTH, int SCREEN_HEIGHT, int TILE_SIZE) {
+    for (int y = 0; y < SCREEN_HEIGHT; y += TILE_SIZE) {
+        for (int x = -SCREEN_WIDTH; x < SCREEN_WIDTH*2; x += TILE_SIZE) {
+            SDL_Rect destRect = {x - scrollOffset, y, TILE_SIZE, TILE_SIZE};
+            SDL_RenderCopy(renderer, backgroundTexture, NULL, &destRect);
+        }
+    }
+}
