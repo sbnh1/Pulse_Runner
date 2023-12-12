@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-#include <stdbool.h>
+#include <stdbool.h> 
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include "fonctions_SDL.h"
@@ -93,3 +93,35 @@ Button createButton(SDL_Renderer* renderer, const char* imagePath, int x, int y,
     button.texture = SDL_CreateTextureFromSurface(renderer, IMG_Load(imagePath));
     return button;
 }    
+
+SDL_Texture* loadHoverTexture(SDL_Renderer* renderer, const char* imagePath) {
+    SDL_Surface* surface = IMG_Load(imagePath);
+    if (!surface) {
+        printf("Erreur IMG_Load: %s\n", IMG_GetError());
+        return NULL;
+    }
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    if (!texture) {
+        printf("Erreur SDL_CreateTextureFromSurface: %s\n", SDL_GetError());
+        return NULL;
+    }
+
+    return texture;
+}
+
+bool isMouseOnButton(int mouseX, int mouseY, SDL_Rect buttonRect) {
+    return (mouseX >= buttonRect.x && mouseX <= buttonRect.x + buttonRect.w &&
+            mouseY >= buttonRect.y && mouseY <= buttonRect.y + buttonRect.h);
+}
+
+void freeButtons(Button* buttons, int count) {
+    for (int i = 0; i < count; i++) {
+        SDL_DestroyTexture(buttons[i].texture);
+        if (buttons[i].hoverTexture != NULL) {
+            SDL_DestroyTexture(buttons[i].hoverTexture);
+        }
+    }
+}

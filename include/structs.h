@@ -3,10 +3,11 @@
 
 typedef struct Player { 
     SDL_Rect rect;
-    int speed;
+    double speedY;
+    int speedX;
     int state;   
     SDL_Texture* sprite_image;
-} Player;
+} Player; 
 
 typedef struct Block{
     char type;
@@ -16,8 +17,9 @@ typedef struct Block{
 } Block;
 
 typedef struct {
-    SDL_Rect rect;
     SDL_Texture* texture;
+    SDL_Texture* hoverTexture;  
+    SDL_Rect rect;
 } Button;
 
 #endif 
