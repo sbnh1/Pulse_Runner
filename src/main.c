@@ -24,8 +24,12 @@
 #define GRAVITY 0.3
 #define JUMP_SPEED -9
 
+bool enMenu = true;
+bool enShop = false;
+bool enChoix = false;
+
 int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurface, SDL_Texture* imageTexture, SDL_Event event, char** map) {
-    
+    printf("je rentre dans gameloop\n");
     SDL_Surface *backgroundSurface = IMG_Load("sprites/background.png");
     SDL_Texture *backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundSurface);
     SDL_FreeSurface(backgroundSurface);
@@ -33,7 +37,8 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
     SDL_SetTextureColorMod(backgroundTexture, 128, 0, 128);
 
     SDL_Rect basePlayerRect = {200, 150, 50, 50};
-    
+    int sortieGameLoop = 0; 
+
     Player player = {
         .rect = basePlayerRect, // player rect 
         .speedX = 2,                 // player speed
@@ -113,10 +118,10 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
 
     int scrollOffset = 0;
 
-    while (1) {
+    while (!sortieGameLoop) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
-                goto end;
+                sortieGameLoop = 1;
             } else if (event.type == SDL_KEYDOWN) {
                 SDL_Keycode key = event.key.keysym.sym;
                 switch (key) {
@@ -133,6 +138,7 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
         player.speedY += GRAVITY;
 
         int collision;
+        int reachedEndBlock = 0;
 
         zone = getZoneRect(player.rect);
         SETZONECOLLISION(zoneCollision, blockMap, zone)
@@ -141,7 +147,7 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
         switch(collision){
             case '1': player.rect.x -= player.speedX; break;
             case '2': player.rect = basePlayerRect; break;
-            case '3': goto end; break;
+            case '3': reachedEndBlock = 1; break;
         } 
 
         zone = getZoneRect(player.rect);
@@ -163,7 +169,7 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
                 player.speedY = 0.0;
                 break;
             case '3': 
-                goto end; 
+                reachedEndBlock = 1; 
                 break;
         } 
 
@@ -171,7 +177,6 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
         //     player.rect = basePlayerRect;
 
         camera.x = player.rect.x - 300;
-
         scrollOffset += SCROLL_SPEED;
         if (scrollOffset >= TILE_SIZE)
             scrollOffset = 0;
@@ -218,23 +223,35 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
             SDL_Delay(targetFrameTime - elapsedTime);
         }
         lastTick = currentTick;
+
+        if(reachedEndBlock == 1){
+            enChoix = true;
+            sortieGameLoop = 1;
+            printf("je suis ici\n");
+            for (int i = 0; i < 11; i++)
+                free(blockMap[i]);
+
+            free(blockMap);
+
+            free(zoneCollision);
+            printf("je suis plus ici\n");  
+        }
     }
 
-end:
+// end:
+//     printf("je suis dans le end\n");
+//     for (int i = 0; i < 11; i++)
+//         free(blockMap[i]);
 
-    for (int i = 0; i < 11; i++)
-        free(blockMap[i]);
+//     free(blockMap);
 
-    free(blockMap);
+//     free(zoneCollision);
+//     // SDL_DestroyRenderer(renderer);
+//     // SDL_DestroyWindow(window);
+//     // SDL_Quit();
 
-    free(zoneCollision);
-
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-
-    return 0;
-}
+//     return 0;
+ }
 
 int main(int argc, char** argv) {
 
@@ -344,16 +361,19 @@ int main(int argc, char** argv) {
     // Charger l’image en fond
     SDL_Texture* fond = chargerTexture( "sprites/menu.png", renderer );
 
-
-    bool enMenu = true;
-    bool enShop = false;
-    bool enChoix = false;
-
-    //création des boutons
+    //création des boutons pour se deplacer dans les menus
     Button buttonMenuToShop = createButton(renderer, "sprites/buttonShop.png", 350, 250, 100, 100);
+    buttonMenuToShop.hoverTexture = loadHoverTexture(renderer, "sprites/buttonShopHover.png"); 
+
     Button buttonShopToMenu = createButton(renderer, "sprites/button1.png", 20, 20, 150, 60);
+    buttonShopToMenu.hoverTexture = loadHoverTexture(renderer, "sprites/buttonBackHover.png"); 
+
     Button buttonMenuToChoice = createButton(renderer, "sprites/buttonPlay.png", 550, 250, 100, 100);
+    buttonMenuToChoice.hoverTexture = loadHoverTexture(renderer, "sprites/buttonChoiceHover.png"); 
+
     Button buttonChoiceToMenu = createButton(renderer, "sprites/button1.png", 20, 20, 150, 60);
+    buttonChoiceToMenu.hoverTexture = loadHoverTexture(renderer, "sprites/buttonBackHover.png"); 
+
     Button buttonMapToChoice = createButton(renderer, "sprites/button1.png", 830, 20, 150, 60);
 
     //création des boutons pour le shop
@@ -365,9 +385,25 @@ int main(int argc, char** argv) {
     Button cube6 = createButton(renderer, "sprites/cube6.png", 600, 350, 80, 80);
 
     //création des boutons pour les map
-    Button map1 = createButton(renderer, "sprites/gentleGlide.png", 100, 200, 200, 200);
-    Button map2 = createButton(renderer, "sprites/neverGiveUp.png", 400, 200, 200, 200);
-    Button map3 = createButton(renderer, "sprites/eternalAscension.png", 700, 200, 200, 200);
+    Button buttonMap1 = createButton(renderer, "sprites/gentleGlide.png", 100, 200, 200, 200);
+    buttonMap1.hoverTexture = loadHoverTexture(renderer, "sprites/gentleGlideHover.png"); 
+
+    Button buttonMap2 = createButton(renderer, "sprites/neverGiveUp.png", 400, 200, 200, 200);
+    buttonMap2.hoverTexture = loadHoverTexture(renderer, "sprites/neverGiveUpHover.png"); 
+
+    Button buttonMap3 = createButton(renderer, "sprites/eternalAscension.png", 700, 200, 200, 200);
+    buttonMap3.hoverTexture = loadHoverTexture(renderer, "sprites/eternalAscensionHover.png"); 
+
+
+    //création des textures au moment ou on survole un bouton
+    bool ButtonMenuToShopHovered = false;
+    bool ButtonMenuToChoiceHovered = false;
+    bool ButtonShopToMenuHovered = false;
+    bool ButtonChoiceToMenuHovered = false;
+
+    bool neverGiveUpHovered = false;
+    bool gentleGlideHovered = false;
+    bool eternalAscensionHovered = false;
 
     char** map = malloc(sizeof(char*) * 11);
     
@@ -379,11 +415,10 @@ int main(int argc, char** argv) {
 
         if (enMenu && !enShop && !enChoix) { //menu principal
             SDL_RenderCopy(renderer, menuTexture, NULL, NULL);
-            SDL_RenderCopy(renderer, buttonMenuToShop.texture, NULL, &buttonMenuToShop.rect);
-            SDL_RenderCopy(renderer, buttonMenuToChoice.texture, NULL, &buttonMenuToChoice.rect);
-
-
-            SDL_RenderPresent(renderer);
+            SDL_Texture* currentButtonMenuToShopTexture = ButtonMenuToShopHovered ? buttonMenuToShop.hoverTexture : buttonMenuToShop.texture;
+            SDL_RenderCopy(renderer, currentButtonMenuToShopTexture, NULL, &buttonMenuToShop.rect);
+            SDL_Texture* currentButtonMenuToChoiceTexture = ButtonMenuToChoiceHovered ? buttonMenuToChoice.hoverTexture : buttonMenuToChoice.texture;
+            SDL_RenderCopy(renderer, currentButtonMenuToChoiceTexture, NULL, &buttonMenuToChoice.rect);
 
             while (SDL_PollEvent(&evenements)) {
                 switch (evenements.type) {
@@ -399,20 +434,24 @@ int main(int argc, char** argv) {
                             terminer = true;
                         }
                         break;
+                        case SDL_MOUSEMOTION:
+                            int mouseX = evenements.motion.x;
+                            int mouseY = evenements.motion.y;
+                            ButtonMenuToShopHovered = isMouseOnButton(mouseX, mouseY, buttonMenuToShop.rect);
+                            ButtonMenuToChoiceHovered = isMouseOnButton(mouseX, mouseY, buttonMenuToChoice.rect);
+                        break;
                         case SDL_MOUSEBUTTONDOWN:
-                            int mouseX = 0;
-                            int mouseY = 0;
+                            mouseX = evenements.motion.x;
+                            mouseY = evenements.motion.y;
                             SDL_GetMouseState(&mouseX, &mouseY);
                             //bouton pour aller au shop
-                            if (mouseX >= buttonMenuToShop.rect.x && mouseX <= buttonMenuToShop.rect.x + buttonMenuToShop.rect.w &&
-                                mouseY >= buttonMenuToShop.rect.y && mouseY <= buttonMenuToShop.rect.y + buttonMenuToShop.rect.h) {
+                            if (isMouseOnButton(mouseX, mouseY, buttonMenuToShop.rect)) {
                                 enShop = true;
                                 enMenu = false;
                                 enChoix = false;
                             }
                             //bouton pour aller au choix du lvl
-                            if (mouseX >= buttonMenuToChoice.rect.x && mouseX <= buttonMenuToChoice.rect.x + buttonMenuToChoice.rect.w &&
-                                mouseY >= buttonMenuToChoice.rect.y && mouseY <= buttonMenuToChoice.rect.y + buttonMenuToChoice.rect.h) {
+                            if (isMouseOnButton(mouseX, mouseY, buttonMenuToChoice.rect)) {
                                 enShop = false;
                                 enMenu = false;
                                 enChoix = true;
@@ -422,16 +461,14 @@ int main(int argc, char** argv) {
             }
         } else if (!enMenu && enShop && !enChoix){ //dans le shop
             SDL_RenderCopy(renderer,menuShopTexture, NULL, NULL);
-            SDL_RenderCopy(renderer, buttonShopToMenu.texture, NULL, &buttonShopToMenu.rect);
+            SDL_Texture* currentButtonShopToMenuTexture = ButtonShopToMenuHovered ? buttonShopToMenu.hoverTexture : buttonShopToMenu.texture;
+            SDL_RenderCopy(renderer, currentButtonShopToMenuTexture, NULL, &buttonShopToMenu.rect);            
             SDL_RenderCopy(renderer, cube1.texture, NULL, &cube1.rect);
             SDL_RenderCopy(renderer, cube2.texture, NULL, &cube2.rect);
             SDL_RenderCopy(renderer, cube3.texture, NULL, &cube3.rect);
             SDL_RenderCopy(renderer, cube4.texture, NULL, &cube4.rect);
             SDL_RenderCopy(renderer, cube5.texture, NULL, &cube5.rect);
             SDL_RenderCopy(renderer, cube6.texture, NULL, &cube6.rect);
-
-
-            SDL_RenderPresent(renderer);
 
             while(SDL_PollEvent(&evenements)){
                 switch(evenements.type){
@@ -448,13 +485,17 @@ int main(int argc, char** argv) {
                             enChoix = false;
                         }
                     break;
+                    case SDL_MOUSEMOTION:
+                            int mouseX = evenements.motion.x;
+                            int mouseY = evenements.motion.y;
+                            ButtonShopToMenuHovered = isMouseOnButton(mouseX, mouseY, buttonShopToMenu.rect);
+                    break;
                     case SDL_MOUSEBUTTONDOWN:
-                        int mouseX= 0;
-                        int mouseY = 0;
+                        mouseX = evenements.motion.x;
+                        mouseY = evenements.motion.y;
                         SDL_GetMouseState(&mouseX, &mouseY);
                         //bouton retour en arriere
-                        if (mouseX >= buttonShopToMenu.rect.x && mouseX <= buttonShopToMenu.rect.x + buttonShopToMenu.rect.w &&
-                                mouseY >= buttonShopToMenu.rect.y && mouseY <= buttonShopToMenu.rect.y + buttonShopToMenu.rect.h) {
+                        if (isMouseOnButton(mouseX, mouseY, buttonShopToMenu.rect)) {
                                 enShop = false;
                                 enMenu = true;
                                 enChoix = false;
@@ -466,12 +507,17 @@ int main(int argc, char** argv) {
             }
         } else if (!enMenu && !enShop && enChoix){ //choix des niveaux
             SDL_RenderCopy(renderer, choixMapTexture, NULL, NULL);
-            SDL_RenderCopy(renderer, buttonChoiceToMenu.texture, NULL, &buttonChoiceToMenu.rect);
-            SDL_RenderCopy(renderer, map1.texture, NULL, &map1.rect);
-            SDL_RenderCopy(renderer, map2.texture, NULL, &map2.rect);
-            SDL_RenderCopy(renderer, map3.texture, NULL, &map3.rect);
-            SDL_RenderPresent(renderer);
+            SDL_Texture* currentButtonChoiceToMenuTexture = ButtonChoiceToMenuHovered ? buttonChoiceToMenu.hoverTexture : buttonChoiceToMenu.texture;
+            SDL_RenderCopy(renderer, currentButtonChoiceToMenuTexture, NULL, &buttonChoiceToMenu.rect);
 
+            SDL_Texture* currentButtonChoiceMap1Texture = gentleGlideHovered ? buttonMap1.hoverTexture : buttonMap1.texture;
+            SDL_RenderCopy(renderer, currentButtonChoiceMap1Texture, NULL, &buttonMap1.rect);
+
+            SDL_Texture* currentButtonChoiceMap2Texture = neverGiveUpHovered ? buttonMap2.hoverTexture : buttonMap2.texture;
+            SDL_RenderCopy(renderer, currentButtonChoiceMap2Texture, NULL, &buttonMap2.rect);
+
+            SDL_Texture* currentButtonChoiceMap3Texture = eternalAscensionHovered ? buttonMap3.hoverTexture : buttonMap3.texture;
+            SDL_RenderCopy(renderer, currentButtonChoiceMap3Texture, NULL, &buttonMap3.rect);
 
             while (SDL_PollEvent(&evenements)) {
                 switch(evenements.type){
@@ -482,22 +528,35 @@ int main(int argc, char** argv) {
                         if (evenements.key.keysym.sym == SDLK_q) {
                             terminer = true;
                         }
-                        break;
+                    break;
+                    case SDL_MOUSEMOTION:
+                            int mouseX = evenements.motion.x;
+                            int mouseY = evenements.motion.y;
+                            ButtonChoiceToMenuHovered = isMouseOnButton(mouseX, mouseY, buttonChoiceToMenu.rect);
+                            gentleGlideHovered = isMouseOnButton(mouseX, mouseY, buttonMap1.rect);
+                            neverGiveUpHovered = isMouseOnButton(mouseX, mouseY, buttonMap2.rect);
+                            eternalAscensionHovered  = isMouseOnButton(mouseX, mouseY, buttonMap3.rect);
+                    break;
                     case SDL_MOUSEBUTTONDOWN:
-                            int mouseX = 0;
-                            int mouseY = 0;
+                            mouseX = 0;
+                            mouseY = 0;
                             SDL_GetMouseState(&mouseX, &mouseY);
                             //bouton retour en arriere
-                            if (mouseX >= buttonChoiceToMenu.rect.x && mouseX <= buttonChoiceToMenu.rect.x + buttonChoiceToMenu.rect.w &&
-                                mouseY >= buttonChoiceToMenu.rect.y && mouseY <= buttonChoiceToMenu.rect.y + buttonChoiceToMenu.rect.h) {
+                            if (isMouseOnButton(mouseX, mouseY, buttonChoiceToMenu.rect)) {
                                 enShop = false;
                                 enMenu = true;
                                 enChoix = false;
                             }
                             //bouton des choix de lvl
-                            if (mouseX >= map1.rect.x && mouseX <= map1.rect.x + map1.rect.w &&
-                                mouseY >= map1.rect.y && mouseY <= map1.rect.y + map1.rect.h) {
+                            if (isMouseOnButton(mouseX, mouseY, buttonMap1.rect)) {
                                 getMap(map, "map");
+                                enShop = false;
+                                enMenu = false;
+                                enChoix = false;
+                                printf("je sors du choix de lvl\n");
+                            }
+                            if (isMouseOnButton(mouseX, mouseY, buttonMap2.rect)) {
+                                getMap(map, "map2");
                                 enShop = false;
                                 enMenu = false;
                                 enChoix = false;
@@ -509,7 +568,6 @@ int main(int argc, char** argv) {
         } else if (!enMenu && !enShop && !enChoix){ //lancement de la map choisi
             SDL_RenderCopy(renderer, choixMapTexture, NULL, NULL);
             SDL_RenderCopy(renderer, buttonMapToChoice.texture, NULL, &buttonMapToChoice.rect);
-            SDL_RenderPresent(renderer);
             
             while (SDL_PollEvent(&evenements)) {
                 switch(evenements.type){
@@ -525,14 +583,18 @@ int main(int argc, char** argv) {
             }
             SDL_Event event;
             gameLoop(window, renderer, imageSurface, imageTexture, event, map);
-            for (int i = 0; i < 11; i++)
-                free(map[i]);
-            free(map);
+            printf("fin de gameloop\n");
+            enChoix = true;
+            // for (int i = 0; i < 11; i++)
+            //     free(map[i]);
+            // free(map);
+
+           
         }
 
         SDL_RenderPresent(renderer);
     }
-
+    
     SDL_DestroyTexture(imageTexture);
     SDL_DestroyTexture(fond);
     SDL_DestroyTexture(menuTexture);
@@ -542,6 +604,21 @@ int main(int argc, char** argv) {
 
     SDL_Quit();
     IMG_Quit();
+    freeButtons(&buttonMenuToShop, 1);
+    freeButtons(&buttonShopToMenu, 1);
+    freeButtons(&buttonMenuToChoice, 1);
+    freeButtons(&buttonChoiceToMenu, 1);
+    freeButtons(&cube1, 1);
+    freeButtons(&cube2, 1);
+    freeButtons(&cube3, 1);
+    freeButtons(&cube4, 1);
+    freeButtons(&cube5, 1);
+    freeButtons(&cube6, 1);
+    freeButtons(&buttonMapToChoice, 1);
+    freeButtons(&buttonMap1, 1);
+    freeButtons(&buttonMap2, 1);
+    freeButtons(&buttonMap3, 1);
+
     printf("1\n");
     return 0;
 }
