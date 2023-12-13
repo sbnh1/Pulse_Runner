@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "structs.h"
 #include "utils.h"
@@ -14,22 +15,65 @@ int checkCollision(SDL_Rect rect1, Block * zone) {
     return -1;
 }
 
-void  getMap(char** map, char* fileName){
+Block** getMap(char* fileName, SDL_Renderer *renderer){
     
     FILE* file = fopen(fileName, "r");
 
     char line[1000];
 
+    Block** blockMap = malloc(sizeof(Block*) * 11);
+    for (int i = 0; i < 11; i++)
+        blockMap[i] = malloc(sizeof(Block) * 1000);
+
+    SDL_Rect blockRect;
+    SDL_Rect hitBox;
+
     for(int i = 0; fgets(line, sizeof(line), file) != NULL; i++){
-        map[i] = malloc(sizeof(char) * (strlen(line)));
         if(strlen(line) > 2){
-            for(int j = 0; j < strlen(line); j++){
-                if(line[j] == '0' || line[j] == '1' || line[j] == '2' || line[j] == '3')
-                    map[i][j] = line[j];
+            for(int j = 0; j < strlen(line)-1; j++){
+                blockMap[i][j].type = '0';
+                blockMap[i][j].sprite_image = NULL;
+                switch (line[j]) {      
+                    case '1':
+                        blockRect.x = j * 50;
+                        blockRect.y = i * 50;
+                        blockRect.w = 50;
+                        blockRect.h = 50;
+                        blockMap[i][j].rect = blockRect;
+                        blockMap[i][j].hitBox = blockRect;
+                        blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/block.png"));
+                        blockMap[i][j].type = '1';
+                        break;
+                    case '2':
+                        blockRect.x = j * 50;
+                        blockRect.y = i * 50;
+                        blockRect.w = 50;
+                        blockRect.h = 50;
+                        hitBox.x = blockRect.x + 20; 
+                        hitBox.y = blockRect.y + 10;
+                        hitBox.w = 12;
+                        hitBox.h = 18;
+                        blockMap[i][j].rect = blockRect;
+                        blockMap[i][j].hitBox = hitBox;
+                        blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/spike.png"));
+                        blockMap[i][j].type = '2';
+                        break;
+                    case '3':
+                        blockRect.x = j * 50;
+                        blockRect.y = i * 50;
+                        blockRect.w = 50;
+                        blockRect.h = 50;
+                        blockMap[i][j].rect = blockRect;
+                        blockMap[i][j].hitBox = blockRect;
+                        blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/end_block.png"));
+                        blockMap[i][j].type = '3';
+                        break;
+                }
             }
         }    
     }    
     fclose(file);
+    return blockMap;
 }
 
 SDL_Rect getZoneRect(SDL_Rect rect){

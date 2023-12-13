@@ -28,7 +28,7 @@ bool enMenu = true;
 bool enShop = false;
 bool enChoix = false;
 
-int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurface, SDL_Texture* imageTexture, SDL_Event event, char** map) {
+void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurface, SDL_Texture* imageTexture, SDL_Event event, Block** blockMap) {
     printf("je rentre dans gameloop\n");
     SDL_Surface *backgroundSurface = IMG_Load("sprites/background.png");
     SDL_Texture *backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundSurface);
@@ -41,7 +41,7 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
 
     Player player = {
         .rect = basePlayerRect, // player rect 
-        .speedX = 2,                 // player speed
+        .speedX = 3,                 // player speed
         .speedY = 0.0,                     //player speed y
         .state = 0,                 // state
         .sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/cube5.png")) // player texture
@@ -55,66 +55,13 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
     Uint32 lastTick = SDL_GetTicks();
     Uint32 currentTick = SDL_GetTicks();
 
-    Block** blockMap = malloc(sizeof(Block*) * 11);
-
-    for (int i = 0; i < 11; i++) {
-        blockMap[i] = malloc(sizeof(Block) * 1000);
-    }
-
-    SDL_Rect blockRect;
-    SDL_Rect hitBox;
-
-    for (int i = 0; i < 11; i++) {
-        for (int j = 0; j < 1000; j++) {
-            blockMap[i][j].type = '0';
-            switch (map[i][j]) {      
-                case '1':
-                    blockRect.x = j * 50;
-                    blockRect.y = i * 50;
-                    blockRect.w = 50;
-                    blockRect.h = 50;
-                    blockMap[i][j].rect = blockRect;
-                    blockMap[i][j].hitBox = blockRect;
-                    blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/block.png"));
-                    blockMap[i][j].type = '1';
-                    break;
-                case '2':
-                    blockRect.x = j * 50;
-                    blockRect.y = i * 50;
-                    blockRect.w = 50;
-                    blockRect.h = 50;
-                    hitBox.x = blockRect.x + 20; 
-                    hitBox.y = blockRect.y + 10;
-                    hitBox.w = 12;
-                    hitBox.h = 18;
-                    blockMap[i][j].rect = blockRect;
-                    blockMap[i][j].hitBox = hitBox;
-                    blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/spike.png"));
-                    blockMap[i][j].type = '2';
-                    break;
-                case '3':
-                    blockRect.x = j * 50;
-                    blockRect.y = i * 50;
-                    blockRect.w = 50;
-                    blockRect.h = 50;
-                    blockMap[i][j].rect = blockRect;
-                    blockMap[i][j].hitBox = blockRect;
-                    blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/end_block.png"));
-                    blockMap[i][j].type = '3';
-                    break;
-            }
-        }
-    }
-
     int gridColor = 20;
 
     Block* zoneCollision = malloc(sizeof(Block) * 4);
 
     SDL_Rect zone = getZoneRect(player.rect);
 
-    int lastPlayerXPos = 0;
-
-    int cpt = 0;
+    SDL_Rect lastPlayerPos = {0,0,0,0};
 
     int scrollOffset = 0;
 
@@ -173,8 +120,8 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
                 break;
         } 
 
-        // if(lastPlayerXPos == player.rect.x)
-        //     player.rect = basePlayerRect;
+        if(player.rect.x == lastPlayerPos.x && player.rect.y == lastPlayerPos.y)
+            player.rect = basePlayerRect;
 
         camera.x = player.rect.x - 300;
         scrollOffset += SCROLL_SPEED;
@@ -214,7 +161,7 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
         free(relativPlayerPos);
         SDL_RenderPresent(renderer);
 
-        lastPlayerXPos = player.rect.x;
+        lastPlayerPos = player.rect;
 
         currentTick = SDL_GetTicks();
         elapsedTime = SDL_GetTicks() - lastTick;
@@ -237,21 +184,7 @@ int gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurfa
             printf("je suis plus ici\n");  
         }
     }
-
-// end:
-//     printf("je suis dans le end\n");
-//     for (int i = 0; i < 11; i++)
-//         free(blockMap[i]);
-
-//     free(blockMap);
-
-//     free(zoneCollision);
-//     // SDL_DestroyRenderer(renderer);
-//     // SDL_DestroyWindow(window);
-//     // SDL_Quit();
-
-//     return 0;
- }
+}
 
 int main(int argc, char** argv) {
 
@@ -405,10 +338,7 @@ int main(int argc, char** argv) {
     bool gentleGlideHovered = false;
     bool eternalAscensionHovered = false;
 
-    char** map = malloc(sizeof(char*) * 11);
-    
-    for(int i = 0; i < 11; i++)
-        map[i] = malloc(sizeof(char) * 1000);
+    Block** map;
 
    while (!terminer) {
         SDL_RenderClear(renderer);
@@ -549,14 +479,14 @@ int main(int argc, char** argv) {
                             }
                             //bouton des choix de lvl
                             if (isMouseOnButton(mouseX, mouseY, buttonMap1.rect)) {
-                                getMap(map, "map");
+                                map = getMap("map", renderer);
                                 enShop = false;
                                 enMenu = false;
                                 enChoix = false;
                                 printf("je sors du choix de lvl\n");
                             }
                             if (isMouseOnButton(mouseX, mouseY, buttonMap2.rect)) {
-                                getMap(map, "map2");
+                                map = getMap("map2", renderer);
                                 enShop = false;
                                 enMenu = false;
                                 enChoix = false;
@@ -581,15 +511,13 @@ int main(int argc, char** argv) {
                         break;
                 }
             }
-            SDL_Event event;
-            gameLoop(window, renderer, imageSurface, imageTexture, event, map);
+            gameLoop(window, renderer, imageSurface, imageTexture, evenements, map);
             printf("fin de gameloop\n");
             enChoix = true;
-            // for (int i = 0; i < 11; i++)
-            //     free(map[i]);
-            // free(map);
+            for (int i = 0; i < 11; i++)
+                free(map[i]);
+            free(map);
 
-           
         }
 
         SDL_RenderPresent(renderer);
