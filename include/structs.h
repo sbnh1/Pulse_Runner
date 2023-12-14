@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
 
 typedef struct Player { 
     SDL_Rect rect;
@@ -34,5 +36,13 @@ typedef struct List{
     Skin skin;
     struct List* next;
 } List;
+
+typedef struct {
+    Uint8 r; 
+    Uint8 g; 
+    Uint8 b; 
+    Uint8 a; 
+} MyColor;
+
 
 #endif 
