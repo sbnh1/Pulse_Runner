@@ -8,6 +8,7 @@
 #include "structs.h"
 #include "utils.h"
 #include "fonctions_SDL.h"
+#include "list.h"
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 600
@@ -27,12 +28,15 @@
 bool enMenu = true;
 bool enShop = false;
 bool enChoix = false;
+char spriteCube[50] = "sprites/cube3.png";
+char mapPlayed[50] = "map1";
+
 
 void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurface, SDL_Texture* imageTexture, SDL_Event event, Block** blockMap) {
+    printf("%s\n", mapPlayed);
     printf("je rentre dans gameloop\n");
     SDL_Surface *backgroundSurface = IMG_Load("sprites/background.png");
     SDL_Texture *backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundSurface);
-    SDL_FreeSurface(backgroundSurface);
 
     SDL_SetTextureColorMod(backgroundTexture, 128, 0, 128);
 
@@ -44,7 +48,7 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
         .speedX = 3,                 // player speed
         .speedY = 0.0,                     //player speed y
         .state = 0,                 // state
-        .sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/cube5.png")) // player texture
+        .sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load(spriteCube)) // player texture
     };
 
     SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
@@ -138,15 +142,7 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
                 SDL_Rect* relativBlockPos;
                 switch (blockMap[i][j].type) {
                     case '1':
-                        relativBlockPos = relativPos(&camera, &blockMap[i][j].rect);
-                        SDL_RenderCopy(renderer, blockMap[i][j].sprite_image, NULL, relativBlockPos);
-                        free(relativBlockPos);
-                        break;
                     case '2':
-                        relativBlockPos = relativPos(&camera, &blockMap[i][j].rect);
-                        SDL_RenderCopy(renderer, blockMap[i][j].sprite_image, NULL, relativBlockPos);
-                        free(relativBlockPos);
-                        break;
                     case '3':
                         relativBlockPos = relativPos(&camera, &blockMap[i][j].rect);
                         SDL_RenderCopy(renderer, blockMap[i][j].sprite_image, NULL, relativBlockPos);
@@ -174,21 +170,18 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
         if(reachedEndBlock == 1){
             enChoix = true;
             sortieGameLoop = 1;
-            printf("je suis ici\n");
-            for (int i = 0; i < 11; i++)
-                free(blockMap[i]);
-
-            free(blockMap);
-
-            free(zoneCollision);
-            printf("je suis plus ici\n");  
+            updateDataFile(mapPlayed);
         }
     }
+    free(zoneCollision);
+    SDL_DestroyTexture(player.sprite_image);
+    freeMap(blockMap);
+    SDL_FreeSurface(backgroundSurface);
 }
 
 int main(int argc, char** argv) {
 
-    SDL_Event evenements; // Événements liés à la fenêtre
+    SDL_Event evenements;
     bool terminer = false;
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0){
@@ -309,6 +302,19 @@ int main(int argc, char** argv) {
 
     Button buttonMapToChoice = createButton(renderer, "sprites/button1.png", 830, 20, 150, 60);
 
+    List* skinsList = consList();
+
+    skinsList = ajouter(skinsList, consSkin("sprites/cube1.png"));
+    skinsList = ajouter(skinsList, consSkin("sprites/cube2.png"));
+    skinsList = ajouter(skinsList, consSkin("sprites/cube3.png"));
+    skinsList = ajouter(skinsList, consSkin("sprites/cube4.png"));
+    skinsList = ajouter(skinsList, consSkin("sprites/cube5.png"));
+    skinsList = ajouter(skinsList, consSkin("sprites/cube6.png"));
+
+    setUnblocked(skinsList, "sprites/cube1.png");
+    setUnblocked(skinsList, "sprites/cube2.png");
+    setUnblocked(skinsList, "sprites/cube3.png");
+
     //création des boutons pour le shop
     Button cube1 = createButton(renderer, "sprites/cube1.png", 300, 200, 80, 80);
     Button cube2 = createButton(renderer, "sprites/cube2.png", 450, 200, 80, 80);
@@ -327,7 +333,6 @@ int main(int argc, char** argv) {
     Button buttonMap3 = createButton(renderer, "sprites/eternalAscension.png", 700, 200, 200, 200);
     buttonMap3.hoverTexture = loadHoverTexture(renderer, "sprites/eternalAscensionHover.png"); 
 
-
     //création des textures au moment ou on survole un bouton
     bool ButtonMenuToShopHovered = false;
     bool ButtonMenuToChoiceHovered = false;
@@ -340,7 +345,9 @@ int main(int argc, char** argv) {
 
     Block** map;
 
-   while (!terminer) {
+    int* mapData;
+
+    while (!terminer) {
         SDL_RenderClear(renderer);
 
         if (enMenu && !enShop && !enChoix) { //menu principal
@@ -389,16 +396,31 @@ int main(int argc, char** argv) {
                             break;
                 }
             }
-        } else if (!enMenu && enShop && !enChoix){ //dans le shop
+        } else if (!enMenu && enShop && !enChoix){ //dans le shop$
+            mapData = lireData("data");
+            if(mapData[0] == 1)
+                setUnblocked(skinsList, "sprites/cube4.png");
+            if(mapData[1] == 1)
+                setUnblocked(skinsList, "sprites/cube5.png");
+            if(mapData[2] == 1)
+                setUnblocked(skinsList, "sprites/cube6.png");
+
+            free(mapData);
             SDL_RenderCopy(renderer,menuShopTexture, NULL, NULL);
             SDL_Texture* currentButtonShopToMenuTexture = ButtonShopToMenuHovered ? buttonShopToMenu.hoverTexture : buttonShopToMenu.texture;
             SDL_RenderCopy(renderer, currentButtonShopToMenuTexture, NULL, &buttonShopToMenu.rect);            
-            SDL_RenderCopy(renderer, cube1.texture, NULL, &cube1.rect);
-            SDL_RenderCopy(renderer, cube2.texture, NULL, &cube2.rect);
-            SDL_RenderCopy(renderer, cube3.texture, NULL, &cube3.rect);
-            SDL_RenderCopy(renderer, cube4.texture, NULL, &cube4.rect);
-            SDL_RenderCopy(renderer, cube5.texture, NULL, &cube5.rect);
-            SDL_RenderCopy(renderer, cube6.texture, NULL, &cube6.rect);
+            if(checkSkin(skinsList, "sprites/cube1.png"))
+                SDL_RenderCopy(renderer, cube1.texture, NULL, &cube1.rect);
+            if(checkSkin(skinsList, "sprites/cube2.png"))
+                SDL_RenderCopy(renderer, cube2.texture, NULL, &cube2.rect);
+            if(checkSkin(skinsList, "sprites/cube3.png"))
+                SDL_RenderCopy(renderer, cube3.texture, NULL, &cube3.rect);
+            if(checkSkin(skinsList, "sprites/cube4.png"))
+                SDL_RenderCopy(renderer, cube4.texture, NULL, &cube4.rect);
+            if(checkSkin(skinsList, "sprites/cube5.png"))
+                SDL_RenderCopy(renderer, cube5.texture, NULL, &cube5.rect);
+            if(checkSkin(skinsList, "sprites/cube6.png"))
+                SDL_RenderCopy(renderer, cube6.texture, NULL, &cube6.rect);
 
             while(SDL_PollEvent(&evenements)){
                 switch(evenements.type){
@@ -419,6 +441,7 @@ int main(int argc, char** argv) {
                             int mouseX = evenements.motion.x;
                             int mouseY = evenements.motion.y;
                             ButtonShopToMenuHovered = isMouseOnButton(mouseX, mouseY, buttonShopToMenu.rect);
+
                     break;
                     case SDL_MOUSEBUTTONDOWN:
                         mouseX = evenements.motion.x;
@@ -429,7 +452,10 @@ int main(int argc, char** argv) {
                                 enShop = false;
                                 enMenu = true;
                                 enChoix = false;
-                            }
+                        }
+                        if(isMouseOnButton(mouseX,mouseY,cube1.rect)){
+                            strcpy(spriteCube, "sprites/cube1.png");
+                        }    
                         //bouton en rapport au skin
                     break;
                     //rajouter les directives a prendre pour chaque personnage
@@ -478,18 +504,28 @@ int main(int argc, char** argv) {
                                 enChoix = false;
                             }
                             //bouton des choix de lvl
-                            if (isMouseOnButton(mouseX, mouseY, buttonMap1.rect)) {
-                                map = getMap("map", renderer);
+                            if (isMouseOnButton(mouseX, mouseY, buttonMap1.rect)){
+                                strcpy(mapPlayed, "map1");
+                                gameLoop(window, renderer, imageSurface, imageTexture, evenements, getMap("maps/map1", renderer));
                                 enShop = false;
                                 enMenu = false;
-                                enChoix = false;
+                                enChoix = true;
                                 printf("je sors du choix de lvl\n");
                             }
                             if (isMouseOnButton(mouseX, mouseY, buttonMap2.rect)) {
-                                map = getMap("map2", renderer);
+                                strcpy(mapPlayed, "map2");
+                                gameLoop(window, renderer, imageSurface, imageTexture, evenements, getMap("maps/map2", renderer));
                                 enShop = false;
                                 enMenu = false;
                                 enChoix = false;
+                            }
+                            if (isMouseOnButton(mouseX, mouseY, buttonMap3.rect)){
+                                strcpy(mapPlayed, "map3");
+                                gameLoop(window, renderer, imageSurface, imageTexture, evenements, getMap("maps/map3", renderer));
+                                enShop = false;
+                                enMenu = false;
+                                enChoix = true;
+                                printf("je sors du choix de lvl\n");
                             }
                     break;
 
@@ -511,12 +547,8 @@ int main(int argc, char** argv) {
                         break;
                 }
             }
-            gameLoop(window, renderer, imageSurface, imageTexture, evenements, map);
             printf("fin de gameloop\n");
             enChoix = true;
-            for (int i = 0; i < 11; i++)
-                free(map[i]);
-            free(map);
 
         }
 

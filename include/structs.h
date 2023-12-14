@@ -1,6 +1,9 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
 typedef struct Player { 
     SDL_Rect rect;
     double speedY;
@@ -21,5 +24,15 @@ typedef struct {
     SDL_Texture* hoverTexture;  
     SDL_Rect rect;
 } Button;
+
+typedef struct Skin{
+    char* path;
+    int isUnblocked;
+} Skin;
+
+typedef struct List{
+    Skin skin;
+    struct List* next;
+} List;
 
 #endif 

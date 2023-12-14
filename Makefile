@@ -5,7 +5,7 @@ LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 INCLUDES = -I./SDL2_tff -I./include
 EXEC = main
 SRC_DIR = src
-SRC = $(SRC_DIR)/main.c $(SRC_DIR)/fonctions_SDL.c $(SRC_DIR)/utils.c
+SRC = $(SRC_DIR)/main.c $(SRC_DIR)/fonctions_SDL.c $(SRC_DIR)/utils.c $(SRC_DIR)/list.c
 OBJ = $(SRC:.c=.o)
 
 all: $(EXEC)

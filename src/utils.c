@@ -7,6 +7,65 @@
 #include "structs.h"
 #include "utils.h"
 
+#include <SDL2/SDL.h>
+
+void updateDataFile(char* map) {
+    FILE *file;
+    char buffer[100];
+
+    file = fopen("data", "r+");
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        char currentMap[50];
+        int value;
+
+        if (sscanf(buffer, "%s %d", currentMap, &value) == 2) {
+            if (strcmp(currentMap, map) == 0) {
+                fseek(file, -strlen(buffer), SEEK_CUR);
+                fprintf(file, "%s 1\n", currentMap);
+                printf("1\n");
+            }
+        }
+    }
+
+    fclose(file);
+}
+
+int* lireData(const char* file) {
+    FILE* fichier = fopen(file, "r");
+    
+    int* tab = (int*)malloc(3 * sizeof(int));
+
+    for (int i = 0; i < 3; i++) {
+        char nomMap[10];
+        int val;
+
+        if (fscanf(fichier, "%s %d", nomMap, &val) == 2)
+            tab[i] = val;
+    }
+
+    fclose(fichier);
+
+    return tab;
+}
+
+void freeMap(Block** blockMap){
+    for (int i = 0; i < 11; i++){
+        for (int j = 0; j < 1000; j++){
+            switch (blockMap[i][j].type) {
+                case '1':
+                case '2':
+                case '3':
+                    SDL_DestroyTexture(blockMap[i][j].sprite_image);
+                    break;
+            }
+            blockMap[i][j].sprite_image = NULL;
+        }
+        free(blockMap[i]);        
+    }
+    free(blockMap);
+}
+
 int checkCollision(SDL_Rect rect1, Block * zone) {
     for (int i = 0; i < 4; i++){
         if(SDL_HasIntersection(&rect1, &zone[i].hitBox)) 
@@ -42,6 +101,8 @@ Block** getMap(char* fileName, SDL_Renderer *renderer){
                         blockMap[i][j].rect = blockRect;
                         blockMap[i][j].hitBox = blockRect;
                         blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/block.png"));
+                        if (blockMap[i][j].sprite_image == NULL){
+                        }
                         blockMap[i][j].type = '1';
                         break;
                     case '2':
@@ -56,6 +117,8 @@ Block** getMap(char* fileName, SDL_Renderer *renderer){
                         blockMap[i][j].rect = blockRect;
                         blockMap[i][j].hitBox = hitBox;
                         blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/spike.png"));
+                        if (blockMap[i][j].sprite_image == NULL){
+                        }
                         blockMap[i][j].type = '2';
                         break;
                     case '3':
@@ -66,6 +129,8 @@ Block** getMap(char* fileName, SDL_Renderer *renderer){
                         blockMap[i][j].rect = blockRect;
                         blockMap[i][j].hitBox = blockRect;
                         blockMap[i][j].sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load("sprites/end_block.png"));
+                        if (blockMap[i][j].sprite_image == NULL){
+                        }
                         blockMap[i][j].type = '3';
                         break;
                 }
