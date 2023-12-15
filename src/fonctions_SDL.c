@@ -5,6 +5,7 @@
 #include "fonctions_SDL.h"
 #include "structs.h"
 
+
 // Fonction pour charger une image et créer une texture SDL_Texture*
 SDL_Texture* chargerTexture(const char* nomfichier, SDL_Renderer* renderer) {
     // Charger l'image en utilisant SDL_image
