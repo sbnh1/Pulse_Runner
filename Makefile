@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -ansi -std=c99 -g
 LIBS = -L./SDL2_tff/.libs
-LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf -lSDL2_image -lSDL2_mixer 
+LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf -lSDL2_image
 INCLUDES = -I./SDL2_tff -I./include
 EXEC = main
 SRC_DIR = src
