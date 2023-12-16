@@ -24,7 +24,7 @@
     zC[2] = map[(z.y / 50) + 1][(z.x / 50)]; \
     zC[3] = map[(z.y / 50) + 1][(z.x / 50) + 1];
 
-#define GRAVITY 0.3
+#define GRAVITY 0.34
 #define JUMP_SPEED -9
 
 //initilisation de toutes les variables

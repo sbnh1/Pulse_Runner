@@ -23,7 +23,6 @@ void updateDataFile(char* map) {
             if (strcmp(currentMap, map) == 0) {
                 fseek(file, -strlen(buffer), SEEK_CUR);
                 fprintf(file, "%s 1\n", currentMap);
-                printf("1\n");
             }
         }
     }
@@ -52,13 +51,8 @@ int* lireData(const char* file) {
 void freeMap(Block** blockMap){
     for (int i = 0; i < 11; i++){
         for (int j = 0; j < 1000; j++){
-            switch (blockMap[i][j].type) {
-                case '1':
-                case '2':
-                case '3':
-                    SDL_DestroyTexture(blockMap[i][j].sprite_image);
-                    break;
-            }
+            if(blockMap[i][j].sprite_image != NULL)
+                SDL_DestroyTexture(blockMap[i][j].sprite_image);
             blockMap[i][j].sprite_image = NULL;
         }
         free(blockMap[i]);        
@@ -81,17 +75,21 @@ Block** getMap(char* fileName, SDL_Renderer *renderer){
     char line[1000];
 
     Block** blockMap = malloc(sizeof(Block*) * 11);
-    for (int i = 0; i < 11; i++)
+    for (int i = 0; i < 11; i++){
         blockMap[i] = malloc(sizeof(Block) * 1000);
+        for(int j = 0; j < 1000; j++){
+            blockMap[i][j].type = '0';
+            blockMap[i][j].sprite_image = NULL;
+        }
+    }
 
     SDL_Rect blockRect;
     SDL_Rect hitBox;
 
     for(int i = 0; fgets(line, sizeof(line), file) != NULL; i++){
+        line[strcspn(line, "\n")] = '\0';
         if(strlen(line) > 2){
-            for(int j = 0; j < strlen(line)-1; j++){
-                blockMap[i][j].type = '0';
-                blockMap[i][j].sprite_image = NULL;
+            for(int j = 0; j < strlen(line); j++){
                 switch (line[j]) {      
                     case '1':
                         blockRect.x = j * 50;
@@ -112,7 +110,7 @@ Block** getMap(char* fileName, SDL_Renderer *renderer){
                         blockRect.h = 50;
                         hitBox.x = blockRect.x + 20; 
                         hitBox.y = blockRect.y + 10;
-                        hitBox.w = 12;
+                        hitBox.w = 10;
                         hitBox.h = 18;
                         blockMap[i][j].rect = blockRect;
                         blockMap[i][j].hitBox = hitBox;
