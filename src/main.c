@@ -36,6 +36,10 @@ bool terminer = false;
 char spriteCube[50] = "sprites/cube1.png";
 char mapPlayed[50] = "map1";
 
+//variables pour les fps
+int fpsCounter = 0;
+int fps = 0;    
+
 void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurface, SDL_Texture* imageTexture, SDL_Event event, Block** blockMap) {
     printf("%s\n", mapPlayed);
     SDL_Surface *backgroundSurface = IMG_Load("sprites/background.png");
@@ -236,6 +240,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     TTF_Font *font = TTF_OpenFont("font/gintama.ttf",70);
+    TTF_Font *fontFps = TTF_OpenFont("font/gintama.ttf",20);
     SDL_Color color = {0,191,255,255};
     char msg[] = "NIVEAU FINI";
 
@@ -415,6 +420,7 @@ int main(int argc, char** argv) {
             SDL_RenderCopy(renderer, currentButtonMenuToShopTexture, NULL, &buttonMenuToShop.rect);
             SDL_Texture* currentButtonMenuToChoiceTexture = ButtonMenuToChoiceHovered ? buttonMenuToChoice.hoverTexture : buttonMenuToChoice.texture;
             SDL_RenderCopy(renderer, currentButtonMenuToChoiceTexture, NULL, &buttonMenuToChoice.rect);
+            afficherFPS(renderer, fontFps, &fpsCounter, &fps);
 
             while (SDL_PollEvent(&evenements)) {
                 switch (evenements.type) {
@@ -476,6 +482,7 @@ int main(int argc, char** argv) {
                 SDL_RenderCopy(renderer, cube5.texture, NULL, &cube5.rect);
             if(checkSkin(skinsList, "sprites/cube6.png"))
                 SDL_RenderCopy(renderer, cube6.texture, NULL, &cube6.rect);
+            afficherFPS(renderer, fontFps, &fpsCounter, &fps);
 
             while(SDL_PollEvent(&evenements)){
                 switch(evenements.type){
@@ -533,6 +540,7 @@ int main(int argc, char** argv) {
             SDL_RenderCopy(renderer, currentButtonChoiceMap2Texture, NULL, &buttonMap2.rect);
             SDL_Texture* currentButtonChoiceMap3Texture = eternalAscensionHovered ? buttonMap3.hoverTexture : buttonMap3.texture;
             SDL_RenderCopy(renderer, currentButtonChoiceMap3Texture, NULL, &buttonMap3.rect);
+            afficherFPS(renderer, fontFps, &fpsCounter, &fps);
 
             //fonction pour simplifié le code, elle permet de savoir si on a fini la map ou si on a quitter la map et afficher la bonne page en conséquence
             void EndOrNotEnd(){
@@ -602,6 +610,7 @@ int main(int argc, char** argv) {
             SDL_Rect cubeRect = {SCREEN_WIDTH - 250, SCREEN_HEIGHT - 200, 75, 75}; 
             SDL_RenderCopy(renderer, cubeSprite, NULL, &cubeRect);
             SDL_Rect cubeRectUnlocked = {SCREEN_WIDTH - 250, SCREEN_HEIGHT - 100, 75, 75}; 
+            afficherFPS(renderer, fontFps, &fpsCounter, &fps);
 
             //affichage du cube qu'on a débloqué quand on en débloque un
             mapData = lireData("data");

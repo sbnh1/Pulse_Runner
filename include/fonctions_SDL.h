@@ -19,4 +19,6 @@ bool isMouseOnButton(int mouseX, int mouseY, SDL_Rect buttonRect);
 
 void freeButtons(Button* buttons, int count);
 
+void afficherFPS(SDL_Renderer* ecran, TTF_Font* font, int* fpsCounter, int* fps);
+
 #endif
