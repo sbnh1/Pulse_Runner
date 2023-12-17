@@ -4,30 +4,36 @@
 #include "list.h"
 #include "structs.h"
 
+// fonction qui renvoie si la list est vide ou non
 int estVide(List* L) {
     return L == NULL;
 }
 
+// fonctionqui renvoie le reste de la list
 List* next(List* L) {
     if (L != NULL)
         return L->next;
     return NULL;
 }
 
+//fonction qui renvoie une list vide 
 List* consVide() {
     return NULL;
 }
 
+// fonction qui renvoie le premier element de la list
 Skin* premier(List* L) {
     if (L != NULL) 
         return &(L->skin);
     return NULL;
 }
 
+// constructeur de la list
 List* consList() {
     return NULL;
 }
 
+// fonction qui ajoute un element a la list
 List* ajouter(List* L, Skin* skin) {
     List* newList = (List*)malloc(sizeof(List));
     if (newList == NULL)
@@ -37,6 +43,7 @@ List* ajouter(List* L, Skin* skin) {
     return newList;
 }
 
+//fonction qui libere la memoiure de la list
 void freeList(List* L) {
     if (L != NULL) {
         freeList(L->next);
@@ -44,6 +51,7 @@ void freeList(List* L) {
     }
 }
 
+//fonction qui initialise les données dans la structur Skin
 Skin* consSkin(char* path) {
     Skin* skin = (Skin*)malloc(sizeof(Skin));
     if (skin == NULL)
@@ -61,6 +69,7 @@ Skin* consSkin(char* path) {
     return skin;
 }
 
+// fonction qui cherche dans la list et met a jour le parametre .isUnblocked de la structur Skin
 void setUnblocked(List* L, char* path) {
     if (L == NULL)
         return;
@@ -69,6 +78,7 @@ void setUnblocked(List* L, char* path) {
     setUnblocked(L->next, path);
 }
 
+// fonction que cherche un skin dans la list en fonction du path de son image 
 int checkSkin(List* L, char* path) {
     if (L == NULL)
         return 0;

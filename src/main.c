@@ -54,15 +54,13 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
         .sprite_image = SDL_CreateTextureFromSurface(renderer, IMG_Load(spriteCube)) // player texture
     };
 
-    SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}; // definition du SDL_Rect de la camera suivant le player 
 
     int targetFrameTime = 15;
 
     int elapsedTime;
     Uint32 lastTick = SDL_GetTicks();
     Uint32 currentTick = SDL_GetTicks();
-
-    int gridColor = 20;
 
     Block* zoneCollision = malloc(sizeof(Block) * 4);
 
@@ -96,11 +94,12 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
             }
         }
 
-        player.speedY += GRAVITY;
+        player.speedY += GRAVITY; // application de la gravité
 
         int collision;
         int reachedEndBlock = 0;
 
+        // detection des colision sur l'axe des X
         zone = getZoneRect(player.rect);
         SETZONECOLLISION(zoneCollision, blockMap, zone)
         player.rect.x += player.speedX;
@@ -111,6 +110,7 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
             case '3': reachedEndBlock = 1; break;
         } 
 
+        // detection des colision sur l'axe des Y
         zone = getZoneRect(player.rect);
         SETZONECOLLISION(zoneCollision, blockMap, zone)
         player.rect.y += (int)player.speedY;
@@ -134,10 +134,11 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
                 break;
         } 
 
-        if(player.rect.x == lastPlayerPos.x && player.rect.y == lastPlayerPos.y)
+        if(player.rect.x == lastPlayerPos.x && player.rect.y == lastPlayerPos.y) // si le block est immobile alors il meure
             player.rect = basePlayerRect;
 
-        camera.x = player.rect.x - 300;
+        camera.x = player.rect.x - 300; // mise a jour de la position de la camera en fonction du joueur
+
         scrollOffset += SCROLL_SPEED;
         if (scrollOffset >= TILE_SIZE)
             scrollOffset = 0;
@@ -145,8 +146,9 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        renderBackground(renderer, backgroundTexture, scrollOffset, SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE);
+        renderBackground(renderer, backgroundTexture, scrollOffset, SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE); // rendu du background
 
+        // boucle que affiche les uniquement les block visible en fonction de la position de la camera
         for (int i = 0; i < 11; i++) {
             for (int j = camera.x / 50; j < (camera.x + camera.w + 50) / 50; j++) {
                 SDL_Rect* relativBlockPos;
@@ -154,7 +156,7 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
                     case '1':
                     case '2':
                     case '3':
-                        relativBlockPos = relativPos(&camera, &blockMap[i][j].rect);
+                        relativBlockPos = relativPos(&camera, &blockMap[i][j].rect); // recupere la positon relativ du block par rapport a la position de la camera
                         SDL_RenderCopy(renderer, blockMap[i][j].sprite_image, NULL, relativBlockPos);
                         free(relativBlockPos);
                         break;
@@ -162,7 +164,7 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
             }
         }
 
-        SDL_Rect* relativPlayerPos = relativPos(&camera, &player.rect);
+        SDL_Rect* relativPlayerPos = relativPos(&camera, &player.rect); // recupere la positon relativ du player par rapport a la position de la camera
         SDL_RenderCopy(renderer, player.sprite_image, NULL, relativPlayerPos);
         free(relativPlayerPos);
         SDL_RenderPresent(renderer);
