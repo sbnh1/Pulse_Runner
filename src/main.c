@@ -47,7 +47,7 @@ void gameLoop(SDL_Window* window, SDL_Renderer* renderer, SDL_Surface* imageSurf
 
     SDL_SetTextureColorMod(backgroundTexture, 128, 0, 128);
 
-    SDL_Rect basePlayerRect = {200, 150, 50, 50};
+    SDL_Rect basePlayerRect = {200, 350, 50, 50};
     int sortieGameLoop = 0; 
 
     Player player = {
