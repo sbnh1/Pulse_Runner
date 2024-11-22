@@ -1,92 +1,60 @@
 # Pulse Runner
 
+Pulse Runner is a [Geometry Dash](https://en.wikipedia.org/wiki/Geometry_Dash)-inspired video game developed in C.
 
+## Compilation Instructions (Ubuntu/Debian)
 
-## Getting started
+These instructions are intended for Ubuntu and Debian-based systems. If you're using a different operating system (such as Windows), you may need to adjust the process accordingly.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+If you're using Ubuntu or Debian, you can follow these steps to compile and run the game:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+1. **Install the necessary dependencies**:
+   Run the following command to install the required libraries:
 
-## Add your files
+   ```bash
+   sudo apt-get install build-essential libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev
+   ```
+2. **Compile the game**:
+    Navigate to the project directory and run the make command to compile the game:
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+   ```bash
+   make
+   ```
+3. **Run the game**:
+    After the compilation, you can start the game by executing:
 
-```
-cd existing_repo
-git remote add origin https://gitlab.univ-lorraine.fr/guittien5u/pulse-runner.git
-git branch -M main
-git push -uf origin main
-```
+    ```bash
+    ./main
+    ```
 
-## Integrate with your tools
+## Game User Manual
 
-- [ ] [Set up project integrations](https://gitlab.univ-lorraine.fr/guittien5u/pulse-runner/-/settings/integrations)
+Pulse Runner is a "die and retry" platformer inspired by Geometry Dash. In the game, you control a cube that moves horizontally to the right, encountering obstacles and spikes that you must avoid throughout each level. The goal is to jump over these obstacles and survive.
 
-## Collaborate with your team
+When you launch the game, you will land on the main menu where you can choose to press the "shop" button, the "play" button, or press "q" to quit the game (this feature is available from all other menus in the game). 
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+- The **"shop"** is where you can choose your cube's skin. Initially, three skins are available, and you can unlock three additional skins by playing the game.
+- After the **"shop"**, you can press the **"play"** button, which leads you to the level selection menu. Here, you can choose from three available levels or go back using the button in the top left corner. Completing a level will unlock a new skin for your cube.
+  
+Once you're in the level selection menu, choose the level you want to play. The easiest level is on the left, and the hardest is on the right. In each level, your only action is to press the **SPACE** bar to jump and survive. If you get frustrated with dying repeatedly, you can press **m** to return to the level selection menu.
 
-## Test and Deploy
+If you manage to complete a level, you'll be taken to a new page that shows you the skin you used to complete the level and displays the new skin you unlocked (if it's your first time finishing the level). On this page, there are two buttons:
+- The **"play"** button takes you back to the level selection menu.
+- The **"shop"** button directs you to the shop where you can choose your new unlocked skin.
 
-Use the built-in continuous integration in GitLab.
+## Data
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+You can modify the `data` file to unlock skins by changing the 0s to 1s (and vice versa) for skins that you can unlock by completing a level. You can also use this to lock skins again by changing 1 to 0.
 
-***
+Additionally, you can edit the `map1`, `map2`, and `map3` files in the `maps` folder to create your own levels.
 
-# Editing this README
+### Explanation of the Files in the Maps Folder
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- **Blocks:**
+  - `1` = Block where you can walk on.
+  - `2` = Spikes (hazards).
+  - `3` = Level-ending blocks.
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Issues
 
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+**Disclaimer**: This game is not perfect and may contain some issues. After playing several maps, you might experience problems with collisions on specific blocks, which may cause you to die in an endless loop.
